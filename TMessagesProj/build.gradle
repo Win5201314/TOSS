@@ -1,0 +1,218 @@
+apply plugin: 'com.android.application'
+
+repositories {
+    jcenter()
+    google()
+}
+
+configurations {
+    compile.exclude module: 'support-v4'
+}
+
+dependencies {
+    implementation 'com.android.support:support-core-ui:25.3.1'
+    implementation 'com.android.support:support-compat:25.3.1'
+    implementation 'com.android.support:support-core-utils:25.3.1'
+    implementation 'com.android.support:support-v13:25.3.1'
+    implementation 'com.android.support:palette-v7:25.3.1'
+    implementation 'com.googlecode.mp4parser:isoparser:1.0.6'
+    implementation 'com.stripe:stripe-android:2.0.2'
+    implementation 'org.osmdroid:osmdroid-android:5.6.5'
+
+    compile 'com.alibaba:fastjson:1.1.63.android'
+    implementation files('src/main/libs/okhttp-3.4.1.jar')
+    implementation files('src/main/libs/okio-1.10.0.jar')
+}
+
+//return an api key from a properties file.
+def getAppId(){
+
+    println  "API_KEYS:"+new File("D:/workspace/TOSS/TMessagesProj/API_KEYS").getAbsolutePath()
+    Properties properties = new Properties()
+    properties.load(new FileInputStream("D:/workspace/TOSS/TMessagesProj/API_KEYS"))
+    return properties.get("APP_ID")
+}
+def getAppHash(){
+    Properties properties = new Properties()
+    properties.load(new FileInputStream("D:/workspace/TOSS/TMessagesProj/API_KEYS"))
+    return "\"" + properties.get("APP_HASH") + "\""
+}
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "27.0.3"
+
+
+    useLibrary 'org.apache.http.legacy'
+    defaultConfig.applicationId = "org.telegram.messenger"
+
+    //sourceSets.main.jniLibs.srcDirs = ['./jni/']
+    sourceSets {
+        main {
+            jni.srcDirs = []//设置禁止gradle生成Android.mk
+            //jniLibs.srcDirs = ['src/main/jniLibs']//设置目标的so存放路径
+            jniLibs.srcDirs = ['src/main/libs']
+
+        }
+    }
+
+
+
+//    externalNativeBuild {
+//        ndkBuild {
+//            path "jni/Android.mk"
+//        }
+//    }
+
+    dexOptions {
+        jumboMode = true
+        // Telegram-FOSS
+        javaMaxHeapSize "2g"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    signingConfigs{
+
+        release{
+            storeFile(file("./ccapk.keystore"))
+            storePassword "huichuang001"
+            keyPassword "huichuang001"
+            keyAlias "chongsoft"
+
+        }
+    }
+    buildTypes {
+        debug {
+            debuggable true
+            jniDebuggable true
+            applicationIdSuffix ".beta"
+        }
+
+        release {
+            signingConfig signingConfigs.release
+            debuggable false
+            jniDebuggable false
+            minifyEnabled false
+            shrinkResources false
+
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    defaultConfig.versionCode = 1158
+
+    sourceSets.debug {
+        manifest.srcFile 'config/debug/AndroidManifest.xml'
+    }
+
+    sourceSets.release {
+        manifest.srcFile 'config/release/AndroidManifest.xml'
+    }
+
+    flavorDimensions "minApi"
+
+    productFlavors {
+        x86 {
+            ndk {
+                abiFilter "x86"
+            }
+            versionCode = 2
+        }
+        armv7 {
+            ndk {
+                abiFilter "armeabi-v7a"
+            }
+            versionCode = 1
+        }
+        x86_SDK23 {
+            ndk {
+                abiFilter "x86"
+            }
+            sourceSets.debug {
+                manifest.srcFile 'config/debug/AndroidManifest_SDK23.xml'
+            }
+            sourceSets.release {
+                manifest.srcFile 'config/release/AndroidManifest_SDK23.xml'
+            }
+            minSdkVersion 23
+            versionCode = 4
+        }
+        armv7_SDK23 {
+            ndk {
+                abiFilter "armeabi-v7a"
+            }
+            sourceSets.debug {
+                manifest.srcFile 'config/debug/AndroidManifest_SDK23.xml'
+            }
+            sourceSets.release {
+                manifest.srcFile 'config/release/AndroidManifest_SDK23.xml'
+            }
+            minSdkVersion 23
+            versionCode = 3
+        }
+        fat {
+            sourceSets.debug {
+                manifest.srcFile 'config/debug/AndroidManifest_SDK23.xml'
+            }
+            sourceSets.release {
+                manifest.srcFile 'config/release/AndroidManifest_SDK23.xml'
+            }
+            versionCode = 5
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            output.processManifest.doLast {
+                def abiVersion = variant.productFlavors.get(0).versionCode
+                String manifestPath = "$manifestOutputDirectory/AndroidManifest.xml"
+                def manifestContent = file(manifestPath).getText()
+                manifestContent = manifestContent.replace(String.format('android:versionCode="%d"', abiVersion), String.format('android:versionCode="%s"', defaultConfig.versionCode * 10 + abiVersion))
+                file(manifestPath).write(manifestContent)
+            }
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionName "4.6.0c"
+
+        //obtain your own keys at https://core.telegram.org/api/obtaining_api_id
+        buildConfigField 'int', 'APP_ID', getAppId()
+        buildConfigField 'String', 'APP_HASH', getAppHash()
+
+//        externalNativeBuild {
+//            ndkBuild {
+//                arguments "NDK_APPLICATION_MK:=jni/Application.mk", "APP_PLATFORM:=android-16", "-j5"
+//                abiFilters   "armeabi-v7a", "x86"
+//            }
+//        }
+    }
+}
+import org.gradle.internal.os.OperatingSystem
+import org.apache.tools.ant.taskdefs.condition.Os
+def getNdkBuildCmd() {
+
+   // def ndkDir = project.plugins.findPlugin('com.android.application').sdkHanlder.getNdkFolder().absolutePath
+    def ndkDir = project.android.ndkDirectory
+    def ndkbuild = "$ndkDir/ndk-build"
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        ndkbuild += ".cmd"
+    }
+    return ndkbuild
+}
+
+task ndkBuild(type: Exec) {
+
+    // -j4
+    commandLine getNdkBuildCmd(), '-C', file('src/main/jni').absolutePath
+}
+
+//tasks.withType(JavaCompile) {
+//    compileTask -> compileTask.dependsOn ndkBuild
+//}
