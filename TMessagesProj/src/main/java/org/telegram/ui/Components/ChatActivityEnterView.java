@@ -77,6 +77,7 @@ import org.telegram.messenger.camera.CameraController;
 import org.telegram.messenger.query.DraftQuery;
 import org.telegram.messenger.query.MessagesQuery;
 import org.telegram.messenger.query.StickersQuery;
+import org.telegram.messenger.util.ToastUtil;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.messenger.UserConfig;
@@ -2074,6 +2075,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
 
     //发送消息[文本]
     public static boolean sendMSG(CharSequence text, long dialog_id) {
+        ToastUtil.normalShow(ApplicationLoader.applicationContext, "发送消息成功!", true);
         text = AndroidUtilities.getTrimmedString(text);
         if (text.length() != 0) {
             int count = (int) Math.ceil(text.length() / 4096.0f);
