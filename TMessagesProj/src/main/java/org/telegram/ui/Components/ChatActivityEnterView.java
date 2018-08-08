@@ -170,8 +170,9 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
             seekBarWaveform.draw(canvas);
         }
     }
-
+    //消息输入控件
     private EditTextCaption messageEditText;
+    //发送控件
     private ImageView sendButton;
     private ImageView cancelBotButton;
     private ImageView emojiButton;
@@ -756,7 +757,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                 }
             }
         });
-
+        //发送消息控件
         messageEditText = new EditTextCaption(context) {
             @Override
             public InputConnection onCreateInputConnection(EditorInfo editorInfo) {
@@ -832,6 +833,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                     }
                     return true;
                 } else if (i == KeyEvent.KEYCODE_ENTER && (ctrlPressed || sendByEnter) && keyEvent.getAction() == KeyEvent.ACTION_DOWN && editingMessageObject == null) {
+                    //发送消息
                     sendMessage();
                     return true;
                 } else if (i == KeyEvent.KEYCODE_CTRL_LEFT || i == KeyEvent.KEYCODE_CTRL_RIGHT) {
@@ -1939,6 +1941,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                 }
             }
         } else {
+            //发送消息
             messageEditText.setHintText(LocaleController.getString("TypeMessage", R.string.TypeMessage));
         }
     }
@@ -1988,7 +1991,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
         });
         AnimatorSet.start();
     }
-
+    //发送消息
     private void sendMessage() {
         if (parentFragment != null) {
             String action;
@@ -2054,7 +2057,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
             });
         }
     }
-
+    //最终发消息
     public boolean processSendingText(CharSequence text) {
         text = AndroidUtilities.getTrimmedString(text);
         if (text.length() != 0) {
@@ -2063,6 +2066,23 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                 CharSequence[] message = new CharSequence[]{text.subSequence(a * 4096, Math.min((a + 1) * 4096, text.length()))};
                 ArrayList<TLRPC.MessageEntity> entities = MessagesQuery.getEntities(message);
                 SendMessagesHelper.getInstance().sendMessage(message[0].toString(), dialog_id, replyingMessageObject, messageWebPage, messageWebPageSearch, entities, null, null);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    //发送消息[文本]
+    public static boolean sendMSG(CharSequence text, long dialog_id) {
+        text = AndroidUtilities.getTrimmedString(text);
+        if (text.length() != 0) {
+            int count = (int) Math.ceil(text.length() / 4096.0f);
+            for (int a = 0; a < count; a++) {
+                CharSequence[] message = new CharSequence[]{text.subSequence(a * 4096, Math.min((a + 1) * 4096, text.length()))};
+                ArrayList<TLRPC.MessageEntity> entities = MessagesQuery.getEntities(message);
+                //SendMessagesHelper.getInstance().sendMessage(message[0].toString(), dialog_id, replyingMessageObject, messageWebPage, messageWebPageSearch, entities, null, null);
+                SendMessagesHelper.getInstance().sendMessage(message[0].toString(), dialog_id, null, null, true, entities, null, null);
+                Log.d("SS", "<------TTT------->");
             }
             return true;
         }

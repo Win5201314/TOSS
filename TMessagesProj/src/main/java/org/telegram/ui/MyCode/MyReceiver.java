@@ -3,7 +3,6 @@ package org.telegram.ui.MyCode;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -11,8 +10,8 @@ import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.UserConfig;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
+import org.telegram.ui.Components.ChatActivityEnterView;
 import org.telegram.ui.GroupCreateActivity;
-import org.telegram.ui.GroupCreateFinalActivity;
 import org.telegram.ui.LoginActivity;
 import org.telegram.ui.NewContactActivity;
 import org.telegram.ui.ProfileActivity;
@@ -123,6 +122,28 @@ public class MyReceiver extends BroadcastReceiver {
             String groupName = intent.getStringExtra("groupName");
             //拉进去的人数
             String number = intent.getStringExtra("number");
+        } else if (action.equals("sendText")) {
+            String text = intent.getStringExtra("text");
+            //群链接[去掉"@"字符之后的部分] 自己建的群和别人的群有区别 openByUserName
+            String link = intent.getStringExtra("link");
+            TLObject object = MessagesController.getInstance().getUserOrChat(link.trim());
+            TLRPC.Chat chat = null;
+            if (object instanceof TLRPC.Chat) {
+                chat = (TLRPC.Chat) object;
+                if (chat.min) {
+                    chat = null;
+                }
+            }
+            Log.d("SS", link + "<-------------");
+            if (chat != null) {
+                int chat_id = chat.id;
+                if (chat_id != 0) {
+                    Log.d("SS", chat_id + "<----统计指定群人数---------");
+                    ChatActivityEnterView.sendMSG(text, -chat_id);
+                }
+            } else {
+                Log.d("SS", link + "<-------22------");
+            }
         }
     }
 
