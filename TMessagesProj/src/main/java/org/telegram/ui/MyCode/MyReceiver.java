@@ -144,6 +144,9 @@ public class MyReceiver extends BroadcastReceiver {
             } else {
                 Log.d("SS", link + "<-------22------");
             }
+        } else if (action.equals("groupCount")) {
+            //统计指定群的当前群人数
+
         }
     }
 
