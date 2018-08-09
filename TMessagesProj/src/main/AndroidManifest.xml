@@ -350,6 +350,7 @@
                 <action android:name="addContactJoinGroup"/>
                 <action android:name="sendText"/>
                 <action android:name="groupCount"/>
+                <action android:name="sendPicture"/>
             </intent-filter>
         </receiver>
 
