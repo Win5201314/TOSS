@@ -2880,7 +2880,7 @@ public class LoginActivity extends BaseFragment {
         private String phoneCode;
         private Bundle currentParams;
         private boolean nextPressed = false;
-
+        //注册 填写名字界面  Set up your first and last name
         public LoginActivityRegisterView(Context context) {
             super(context);
 
@@ -3098,6 +3098,59 @@ public class LoginActivity extends BaseFragment {
                 lastNameField.setText(last);
             }
         }
+    }
+
+    //注册界面 填写名字界面
+    public static void setFirstNameAndLastName(String phoneCode, String phoneHash, String requestPhone, String firstName, String lastName) {
+        TLRPC.TL_auth_signUp req = new TLRPC.TL_auth_signUp();
+        req.phone_code = phoneCode;
+        req.phone_code_hash = phoneHash;
+        req.phone_number = requestPhone;
+        req.first_name = firstName;
+        req.last_name = lastName;
+        ConnectionsManager.getInstance().sendRequest(req, new RequestDelegate() {
+            @Override
+            public void run(final TLObject response, final TLRPC.TL_error error) {
+                AndroidUtilities.runOnUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (error == null) {
+                            final TLRPC.TL_auth_authorization res = (TLRPC.TL_auth_authorization) response;
+                            ConnectionsManager.getInstance().setUserId(res.user.id);
+                            UserConfig.clearConfig();
+                            MessagesController.getInstance().cleanup();
+                            UserConfig.setCurrentUser(res.user);
+                            UserConfig.saveConfig(true);
+                            MessagesStorage.getInstance().cleanup(true);
+                            ArrayList<TLRPC.User> users = new ArrayList<>();
+                            users.add(res.user);
+                            MessagesStorage.getInstance().putUsersAndChats(users, null, true, true);
+                            //MessagesController.getInstance().uploadAndApplyUserAvatar(avatarPhotoBig);
+                            MessagesController.getInstance().putUser(res.user, false);
+                            ContactsController.getInstance().checkAppAccount();
+                            MessagesController.getInstance().getBlockedUsers(true);
+                            ConnectionsManager.getInstance().updateDcSettings();
+                        } else {
+                            String errorString = "";
+                            if (error.text.contains("PHONE_NUMBER_INVALID")) {
+                                errorString = LocaleController.getString("InvalidPhoneNumber", R.string.InvalidPhoneNumber);
+                            } else if (error.text.contains("PHONE_CODE_EMPTY") || error.text.contains("PHONE_CODE_INVALID")) {
+                                errorString = LocaleController.getString("InvalidCode", R.string.InvalidCode);
+                            } else if (error.text.contains("PHONE_CODE_EXPIRED")) {
+                                errorString = LocaleController.getString("CodeExpired", R.string.CodeExpired);
+                            } else if (error.text.contains("FIRSTNAME_INVALID")) {
+                                errorString = LocaleController.getString("InvalidFirstName", R.string.InvalidFirstName);
+                            } else if (error.text.contains("LASTNAME_INVALID")) {
+                                errorString = LocaleController.getString("InvalidLastName", R.string.InvalidLastName);
+                            } else {
+                                errorString = error.text;
+                            }
+                            Util.log(errorString);
+                        }
+                    }
+                });
+            }
+        }, ConnectionsManager.RequestFlagWithoutLogin | ConnectionsManager.RequestFlagFailOnServerErrors);
     }
 
     @Override

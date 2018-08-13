@@ -3888,18 +3888,35 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
     //发送图片
     public static void sendPicture(long dialog_id,String path) {
         ArrayList<SendMessagesHelper.SendingMediaInfo> photos = new ArrayList<>();
+        //-554004204 3157 1527564351000 /storage/emulated/0/chongsoft/images/1527564350873.jpg 0 false
+        MediaController.PhotoEntry photoEntry = new MediaController.PhotoEntry(-554004204, 3157, 1527564351000L, path, 0, false);
         SendMessagesHelper.SendingMediaInfo info = new SendMessagesHelper.SendingMediaInfo();
-        info.path = path;
+        /*
+        info.path = photoEntry.path;
         info.isVideo = false;
         info.caption = null;
         info.masks = null;
         info.ttl = 0;
-        //info.videoEditedInfo = photoEntry.editedInfo;
+        info.videoEditedInfo = null;*/
+        if (photoEntry.imagePath != null) {
+            info.path = photoEntry.imagePath;
+        } else if (photoEntry.path != null) {
+            info.path = photoEntry.path;
+        }
+
+        info.isVideo = photoEntry.isVideo;
+        info.caption = photoEntry.caption != null ? photoEntry.caption.toString() : null;
+        info.masks = !photoEntry.stickers.isEmpty() ? new ArrayList<>(photoEntry.stickers) : null;
+        info.ttl = photoEntry.ttl;
+        info.videoEditedInfo = photoEntry.editedInfo;
         photos.add(info);
+        photoEntry.reset();
         //发送图片
         Log.d("info", "=========================================p");
         ToastUtil.normalShow(ApplicationLoader.applicationContext, "发送图片成功!", true);
         SendMessagesHelper.prepareSendingMedia(photos, dialog_id, null, null, true, MediaController.getInstance().isGroupPhotosEnabled());
+        //showReplyPanel(false, null, null, null, false);
+        DraftQuery.cleanDraft(dialog_id, true);
     }
 
     public void processInlineBotContextPM(TLRPC.TL_inlineBotSwitchPM object) {
@@ -3961,9 +3978,12 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                                 info.videoEditedInfo = photoEntry.editedInfo;
                                 photos.add(info);
                                 Log.d("info", info.path);
-                                Log.d("info", info.isVideo + "");
-                                Log.d("info", info.caption + "");
-                                Log.d("info", info.ttl + "");
+                                Log.d("info", info.isVideo + "");//false
+                                Log.d("info", info.caption + "");//null
+                                Log.d("info", info.ttl + "");//0
+                                //if (info.masks != null) Log.d("info", info.masks.size() + "");
+                                if (info.videoEditedInfo != null)
+                                Log.d("info", info.videoEditedInfo.getString());
                                 photoEntry.reset();
                             }
                             //发送图片
@@ -4711,7 +4731,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
     public boolean dismissDialogOnPause(Dialog dialog) {
         return dialog != chatAttachAlert && super.dismissDialogOnPause(dialog);
     }
-
+    //搜索链接
     private void searchLinks(final CharSequence charSequence, final boolean force) {
         if (currentEncryptedChat != null && (MessagesController.getInstance().secretWebpagePreview == 0 || AndroidUtilities.getPeerLayerVersion(currentEncryptedChat.layer) < 46)) {
             return;
@@ -6222,6 +6242,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         }
     }
 
+    //发送视频
     public void openVideoEditor(String videoPath, String caption) {
         if (getParentActivity() != null) {
             final Bitmap thumb = ThumbnailUtils.createVideoThumbnail(videoPath, MediaStore.Video.Thumbnails.MINI_KIND);
@@ -6441,6 +6462,14 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 }
             }
         }
+    }
+
+    public static void sendMsgToContact(long dialog_id, String name, String phoneNumber) {
+        TLRPC.User user = new TLRPC.TL_user();
+        user.first_name = name;
+        user.last_name = "";
+        user.phone = phoneNumber;
+        SendMessagesHelper.getInstance().sendMessage(user, dialog_id, null, null, null);
     }
 
     @Override
@@ -7893,6 +7922,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                                 lastDate = Math.max(chatFull.participants.participants.get(a).date, lastDate);
                             }
                         }
+                        //看到这里2018/8/12
                         if (lastDate == 0 || Math.abs(System.currentTimeMillis() / 1000 - lastDate) > 60 * 60) {
                             MessagesController.getInstance().loadChannelParticipants(currentChat.id);
                         }

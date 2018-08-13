@@ -28,6 +28,8 @@ public class MyReceiver extends BroadcastReceiver {
         if (action.equals("register")) {
             //注册账号
             LoginActivity.loginToZX();
+            //注册填写名字界面
+            //LoginActivity.setFirstNameAndLastName("+86", "", "", "", "");
         } else if (action.equals("sendPhoneNumber")) {
             //登录 发送手机号到Telegram,接收短信验证码
             //发送手机号
@@ -100,7 +102,10 @@ public class MyReceiver extends BroadcastReceiver {
             ChatActivityEnterView.sendMSG(text, dialog_id);
         } else if (action.equals("groupCount")) {
             //统计指定群的当前群人数
-
+            /*String link = "BHgroup2";
+            int chat_id = makeChatId(link);
+            long dialog_id = chat_id > 0 ? -chat_id : AndroidUtilities.makeBroadcastId(chat_id);
+            ChatActivity.sendMsgToContact(dialog_id, "lo", "+8613502820304");*/
         } else if (action.equals("sendPicture")) {
             //对指定群发送图片消息
             //群链接[去掉"@"字符之后的部分] 自己建的群和别人的群有区别 openByUserName

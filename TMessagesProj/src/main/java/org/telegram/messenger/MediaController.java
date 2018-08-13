@@ -50,6 +50,7 @@ import android.provider.OpenableColumns;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
@@ -231,6 +232,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         }
 
         public void reset() {
+            Log.d("info", bucketId + " " + imageId + " " + dateTaken + " " + path + " " + orientation + " " + isVideo);
             isFiltered = false;
             isPainted = false;
             isCropped = false;

@@ -447,7 +447,9 @@ public class ChatAvatarContainer extends FrameLayout implements NotificationCent
         if (currentConnectionState == ConnectionsManager.ConnectionStateWaitingForNetwork) {
             title = LocaleController.getString("WaitingForNetwork", R.string.WaitingForNetwork);
         } else if (currentConnectionState == ConnectionsManager.ConnectionStateConnecting) {
+            //聊天界面 顶部群名下面文字，可以获取人数
             title = LocaleController.getString("Connecting", R.string.Connecting);
+            Log.d("TAG", "======================cc");
         } else if (currentConnectionState == ConnectionsManager.ConnectionStateUpdating) {
             title = LocaleController.getString("Updating", R.string.Updating);
         } else if (currentConnectionState == ConnectionsManager.ConnectionStateConnectingToProxy) {
