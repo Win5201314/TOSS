@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -422,6 +423,7 @@ public class ContactsActivity extends BaseFragment implements NotificationCenter
             String message = LocaleController.formatStringSimple(selectAlertString, UserObject.getUserName(user));
             EditText editText = null;
             if (!user.bot && needForwardCount) {
+                Log.d("TAG", "自己建的群!");
                 message = String.format("%s\n\n%s", message, LocaleController.getString("AddToTheGroupForwardCount", R.string.AddToTheGroupForwardCount));
                 editText = new EditText(getParentActivity());
                 editText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
@@ -473,6 +475,7 @@ public class ContactsActivity extends BaseFragment implements NotificationCenter
             builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
+                    //点击ok
                     didSelectResult(user, false, finalEditText != null ? finalEditText.getText().toString() : "0");
                 }
             });

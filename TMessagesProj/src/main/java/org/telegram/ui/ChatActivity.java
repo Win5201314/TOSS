@@ -1183,7 +1183,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 }
             }
         });
-
+        //1
         avatarContainer = new ChatAvatarContainer(context, this, currentEncryptedChat != null);
         actionBar.addView(avatarContainer, 0, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.MATCH_PARENT, Gravity.TOP | Gravity.LEFT, 56, 0, 40, 0));
 
@@ -2873,6 +2873,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 mentionsAdapter.setBotInfo(botInfo);
             }
             mentionsAdapter.setParentFragment(this);
+            //1
             mentionsAdapter.setChatInfo(info);
             mentionsAdapter.setNeedUsernames(currentChat != null);
             mentionsAdapter.setNeedBotContext(currentEncryptedChat == null || AndroidUtilities.getPeerLayerVersion(currentEncryptedChat.layer) >= 46);
@@ -7912,6 +7913,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 updateVisibleRows();
             }
         } else if (id == NotificationCenter.chatInfoDidLoaded) {
+            //zy
             TLRPC.ChatFull chatFull = (TLRPC.ChatFull) args[0];
             if (currentChat != null && chatFull.id == currentChat.id) {
                 if (chatFull instanceof TLRPC.TL_channelFull) {
@@ -7951,6 +7953,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 if (isBroadcast) {
                     SendMessagesHelper.getInstance().setCurrentChatInfo(info);
                 }
+                //zy
                 if (info instanceof TLRPC.TL_chatFull) {
                     hasBotsCommands = false;
                     botInfo.clear();

@@ -28,6 +28,7 @@ import org.telegram.messenger.query.DraftQuery;
 import org.telegram.messenger.query.MessagesQuery;
 import org.telegram.messenger.query.SearchQuery;
 import org.telegram.messenger.query.StickersQuery;
+import org.telegram.messenger.util.ToastUtil;
 import org.telegram.messenger.voip.VoIPService;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.NativeByteBuffer;
@@ -1150,6 +1151,7 @@ public class MessagesController implements NotificationCenter.NotificationCenter
                         TLRPC.TL_channels_channelParticipants participants = (TLRPC.TL_channels_channelParticipants) response;
                         final ArrayList<Integer> array = new ArrayList<>(participants.participants.size());
                         for (int a = 0; a < participants.participants.size(); a++) {
+                            //zy
                             array.add(participants.participants.get(a).user_id);
                         }
                         processLoadedChannelAdmins(array, chatId, false);
@@ -1308,6 +1310,7 @@ public class MessagesController implements NotificationCenter.NotificationCenter
                             String names = user.first_name + user.last_name + user.username;
                             ArrayList<TLRPC.User> users = new ArrayList<>();
                             users.add(userFull.user);
+                            Log.d("TAG", users.size() + "=============人数");
                             putUsers(users, false);
                             MessagesStorage.getInstance().putUsersAndChats(users, null, false, true);
                             if (names != null && !names.equals(userFull.user.first_name + userFull.user.last_name + userFull.user.username)) {
@@ -5099,11 +5102,13 @@ public class MessagesController implements NotificationCenter.NotificationCenter
                         request = req;
                         joiningToChannels.add(chat_id);
                         Log.d("TAG", "这里------1-----------");
+                        Log.d("TAG", chat_id + "<<=======0==========oo");
                     } else {
                         TLRPC.TL_channels_inviteToChannel req = new TLRPC.TL_channels_inviteToChannel();
                         req.channel = getInputChannel(chat_id);
                         req.users.add(inputUser);
                         request = req;
+                        Log.d("TAG", chat_id + "<<========1=========oo");
                     }
                 } else {
                     TLRPC.TL_messages_addChatUser req = new TLRPC.TL_messages_addChatUser();
@@ -5111,8 +5116,10 @@ public class MessagesController implements NotificationCenter.NotificationCenter
                     req.fwd_limit = count_fwd;
                     req.user_id = inputUser;
                     request = req;
+                    Log.d("TAG", chat_id + "<<=========2========oo");
                 }
             } else {
+                Log.d("TAG", chat_id + "<<=========3========oo");
                 TLRPC.TL_messages_startBot req = new TLRPC.TL_messages_startBot();
                 req.bot = inputUser;
                 if (isChannel) {
@@ -5147,6 +5154,7 @@ public class MessagesController implements NotificationCenter.NotificationCenter
                         });
                         return;
                     }
+                    Log.d("TAG", chat_id + "<<========6=========oo");
                     boolean hasJoinMessage = false;
                     TLRPC.Updates updates = (TLRPC.Updates) response;
                     for (int a = 0; a < updates.updates.size(); a++) {
@@ -9037,4 +9045,108 @@ public class MessagesController implements NotificationCenter.NotificationCenter
             }, 500);
         }
     }
+
+    //添加通讯录好友进群
+    public void addUserToChatBycontact(final int chat_id, final TLRPC.User user, int count_fwd) {
+        ToastUtil.normalShow(ApplicationLoader.applicationContext, "添加通讯录好友进群成功!", true);
+        Log.d("AA", "这里-----------------");
+        if (user == null) {
+            return;
+        }
+        TLObject request = null;
+        Log.d("AA", chat_id + "=============0");
+        if (chat_id > 0) {
+            Log.d("AA", "=============1");
+            final boolean isChannel = ChatObject.isChannel(chat_id);
+            final boolean isMegagroup = isChannel && getChat(chat_id).megagroup;
+            final TLRPC.InputUser inputUser = getInputUser(user);
+            if (true || isChannel && !isMegagroup) {
+                Log.d("AA", "=============2");
+                if (isChannel) {
+                    Log.d("AA", "=============3");
+                    if (inputUser instanceof TLRPC.TL_inputUserSelf) {
+                        if (joiningToChannels.contains(chat_id)) {
+                            return;
+                        }
+                        TLRPC.TL_channels_joinChannel req = new TLRPC.TL_channels_joinChannel();
+                        req.channel = getInputChannel(chat_id);
+                        request = req;
+                        joiningToChannels.add(chat_id);
+                        Log.d("AA", "这里------1-----------");
+                        Log.d("AA", chat_id + "<<=======0==========oo");
+                    } else {
+                        TLRPC.TL_channels_inviteToChannel req = new TLRPC.TL_channels_inviteToChannel();
+                        req.channel = getInputChannel(chat_id);
+                        req.users.add(inputUser);
+                        request = req;
+                        Log.d("AA", chat_id + "<<========1=========oo");
+                    }
+                } else {
+                    TLRPC.TL_messages_addChatUser req = new TLRPC.TL_messages_addChatUser();
+                    req.chat_id = chat_id;
+                    req.fwd_limit = count_fwd;
+                    req.user_id = inputUser;
+                    request = req;
+                    Log.d("AA", chat_id + "<<=========2========oo");
+                }
+            }
+
+            ConnectionsManager.getInstance().sendRequest(request, new RequestDelegate() {
+                @Override
+                public void run(TLObject response, final TLRPC.TL_error error) {
+                    if (isChannel && inputUser instanceof TLRPC.TL_inputUserSelf) {
+                        AndroidUtilities.runOnUIThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                joiningToChannels.remove((Integer) chat_id);
+                                Log.d("AA", "这里----------33-------");
+                            }
+                        });
+                    }
+                    if (error != null) {
+                        Log.d("AA", "=============11");
+                        AndroidUtilities.runOnUIThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //AlertsCreator.processError(error, fragment, request, isChannel && !isMegagroup);
+                            }
+                        });
+                        return;
+                    }
+                    Log.d("AA", chat_id + "<<========6=========oo");
+                    boolean hasJoinMessage = false;
+                    TLRPC.Updates updates = (TLRPC.Updates) response;
+                    for (int a = 0; a < updates.updates.size(); a++) {
+                        TLRPC.Update update = updates.updates.get(a);
+                        if (update instanceof TLRPC.TL_updateNewChannelMessage) {
+                            if (((TLRPC.TL_updateNewChannelMessage) update).message.action instanceof TLRPC.TL_messageActionChatAddUser) {
+                                hasJoinMessage = true;
+                                Log.d("AA", "这里--4---------------");
+                                break;
+                            }
+                        }
+                    }
+                    processUpdates(updates, false);
+                    if (isChannel) {
+                        Log.d("AA", "这里---------2--------");
+                        if (!hasJoinMessage && inputUser instanceof TLRPC.TL_inputUserSelf) {
+                            generateJoinMessage(chat_id, true);
+                        }
+                        AndroidUtilities.runOnUIThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                loadFullChat(chat_id, 0, true);
+                            }
+                        }, 1000);
+                    }
+                    if (isChannel && inputUser instanceof TLRPC.TL_inputUserSelf) {
+                        Log.d("AA", "这里---------5--------");
+                        MessagesStorage.getInstance().updateDialogsWithDeletedMessages(new ArrayList<Integer>(), null, true, chat_id);
+                    }
+                }
+            });
+        }
+    }
+
+
 }

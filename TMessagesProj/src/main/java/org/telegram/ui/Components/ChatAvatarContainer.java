@@ -35,7 +35,9 @@ import org.telegram.ui.ActionBar.SimpleTextView;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ChatActivity;
 import org.telegram.ui.MediaActivity;
+import org.telegram.ui.MyCode.Util;
 import org.telegram.ui.ProfileActivity;
+
 
 public class ChatAvatarContainer extends FrameLayout implements NotificationCenter.NotificationCenterDelegate {
 
@@ -257,6 +259,7 @@ public class ChatAvatarContainer extends FrameLayout implements NotificationCent
             }
             return;
         }
+        //第一个参数
         TLRPC.Chat chat = parentFragment.getCurrentChat();
         CharSequence printString = MessagesController.getInstance().printingStrings.get(parentFragment.getDialogId());
         if (printString != null) {
@@ -266,22 +269,31 @@ public class ChatAvatarContainer extends FrameLayout implements NotificationCent
         if (printString == null || printString.length() == 0 || ChatObject.isChannel(chat) && !chat.megagroup) {
             setTypingAnimation(false);
             if (chat != null) {
+                //第二个参数
                 TLRPC.ChatFull info = parentFragment.getCurrentChatInfo();
                 if (ChatObject.isChannel(chat)) {
                     if (info != null && info.participants_count != 0) {
                         if (chat.megagroup && info.participants_count <= 200) {
                             if (onlineCount > 1 && info.participants_count != 0) {
                                 newSubtitle = String.format("%s, %s", LocaleController.formatPluralString("Members", info.participants_count), LocaleController.formatPluralString("OnlineCount", onlineCount));
+                                Log.d("TAG", newSubtitle + "A");
                             } else {
+                                //人数200以下的人数统计
                                 newSubtitle = LocaleController.formatPluralString("Members", info.participants_count);
+                                Log.d("TAG", newSubtitle + "B");
                             }
                         } else {
                             int result[] = new int[1];
                             String shortNumber = LocaleController.formatShortNumber(info.participants_count, result);
                             if (chat.megagroup) {
+                                //人数超过200的群人数统计
                                 newSubtitle = LocaleController.formatPluralString("Members", result[0]).replace(String.format("%d", result[0]), shortNumber);
+                                Log.d("TAG", newSubtitle + "C");
+                                //Util.log(newSubtitle + "C");
                             } else {
+                                //频道人数
                                 newSubtitle = LocaleController.formatPluralString("Subscribers", result[0]).replace(String.format("%d", result[0]), shortNumber);
+                                Log.d("TAG", newSubtitle + "D");
                             }
                         }
                     } else {
@@ -307,8 +319,10 @@ public class ChatAvatarContainer extends FrameLayout implements NotificationCent
                         }
                         if (onlineCount > 1 && count != 0) {
                             newSubtitle = String.format("%s, %s", LocaleController.formatPluralString("Members", count), LocaleController.formatPluralString("OnlineCount", onlineCount));
+                            Log.d("TAG", newSubtitle + "E");
                         } else {
                             newSubtitle = LocaleController.formatPluralString("Members", count);
+                            Log.d("TAG", newSubtitle + "F");
                         }
                     }
                 }
@@ -392,6 +406,7 @@ public class ChatAvatarContainer extends FrameLayout implements NotificationCent
         }
     }
 
+    //更新在线人数
     public void updateOnlineCount() {
         if (parentFragment == null) {
             return;

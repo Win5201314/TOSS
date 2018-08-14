@@ -814,6 +814,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             creatingChat = true;
+                            //创建私密聊天
                             SecretChatHelper.getInstance().startSecretChat(getParentActivity(), MessagesController.getInstance().getUser(user_id));
                         }
                     });
@@ -1522,12 +1523,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             if (ChatObject.canAddViaLink(currentChat)) {
                 args.putInt("chat_id", currentChat.id);
             }
+            //拉通讯录好友进群
             args.putString("selectAlertString", LocaleController.getString("AddToTheGroup", R.string.AddToTheGroup));
         }
         ContactsActivity fragment = new ContactsActivity(args);
         fragment.setDelegate(new ContactsActivity.ContactsActivityDelegate() {
             @Override
             public void didSelectContact(TLRPC.User user, String param, ContactsActivity activity) {
+                //方法
                 MessagesController.getInstance().addUserToChat(chat_id, user, info, param != null ? Utilities.parseInt(param) : 0, null, ProfileActivity.this);
             }
         });
