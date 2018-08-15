@@ -9,9 +9,9 @@ import android.util.Log;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ContactsController;
 import org.telegram.messenger.MessagesController;
+import org.telegram.messenger.MessagesStorage;
 import org.telegram.messenger.SendMessagesHelper;
 import org.telegram.messenger.UserConfig;
-import org.telegram.messenger.Utilities;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ChatActivity;
@@ -133,8 +133,8 @@ public class MyReceiver extends BroadcastReceiver {
             String link = intent.getStringExtra("link");
             if (TextUtils.isEmpty(link)) return;
             int chat_id = makeChatId(link);
-            TLRPC.Chat chat = MessagesController.getInstance().getChat(chat_id);
-
+            //这里最后一个参数控制请求次数，true代表随意次请求，否则，只能请求一次
+            MessagesController.getInstance().loadFullChat(chat_id, 0, true);
         } else if (action.equals("sendPicture")) {
             //对指定群发送图片消息
             //群链接[去掉"@"字符之后的部分] 自己建的群和别人的群有区别 openByUserName

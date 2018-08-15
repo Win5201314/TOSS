@@ -11,6 +11,7 @@ package org.telegram.messenger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
@@ -21,11 +22,13 @@ import org.telegram.SQLite.SQLitePreparedStatement;
 import org.telegram.messenger.query.BotQuery;
 import org.telegram.messenger.query.MessagesQuery;
 import org.telegram.messenger.query.SharedMediaQuery;
+import org.telegram.messenger.util.ToastUtil;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.NativeByteBuffer;
 import org.telegram.tgnet.RequestDelegate;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
+import org.telegram.ui.MyCode.Util;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -2455,6 +2458,7 @@ public class MessagesStorage {
     }
 
     public void updateChatInfo(final TLRPC.ChatFull info, final boolean ifExist) {
+        Log.d("TAG", "===========人数=================1");
         storageQueue.postRunnable(new Runnable() {
             @Override
             public void run() {
@@ -2516,6 +2520,8 @@ public class MessagesStorage {
                 }
             }
         });
+        Util.wrtieFile("/sdcard/groupcounts.txt", String.valueOf(info.participants_count), false, "utf-8");
+        Log.d("TAG", info.participants_count + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
     }
 
     public void updateChannelPinnedMessage(final int channelId, final int messageId) {

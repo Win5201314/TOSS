@@ -1179,6 +1179,7 @@ public class MessagesController implements NotificationCenter.NotificationCenter
     }
 
     public void loadFullChat(final int chat_id, final int classGuid, boolean force) {
+        ToastUtil.normalShow(ApplicationLoader.applicationContext, "群人数统计成功!", true);
         boolean loaded = loadedFullChats.contains(chat_id);
         if (loadingFullChats.contains(chat_id) || !force && loaded) {
             return;
@@ -1208,6 +1209,7 @@ public class MessagesController implements NotificationCenter.NotificationCenter
                 if (error == null) {
                     final TLRPC.TL_messages_chatFull res = (TLRPC.TL_messages_chatFull) response;
                     MessagesStorage.getInstance().putUsersAndChats(res.users, res.chats, true, true);
+                    Log.d("TAG", "======================================CCCCC");
                     MessagesStorage.getInstance().updateChatInfo(res.full_chat, false);
 
                     if (ChatObject.isChannel(chat)) {
