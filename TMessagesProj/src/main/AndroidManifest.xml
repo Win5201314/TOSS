@@ -344,7 +344,6 @@
                 <action android:name="joinGroup"/>
                 <action android:name="leaveGroup"/>
                 <action android:name="addFriendsGroup"/>
-                <action android:name="groupNumber"/>
                 <action android:name="createGroup"/>
                 <action android:name="contactNumber"/>
                 <action android:name="addContactJoinGroup"/>
@@ -352,6 +351,7 @@
                 <action android:name="groupCount"/>
                 <action android:name="sendPicture"/>
                 <action android:name="loginout"/>
+                <action android:name="LaunchAndExit"/>
             </intent-filter>
         </receiver>
 

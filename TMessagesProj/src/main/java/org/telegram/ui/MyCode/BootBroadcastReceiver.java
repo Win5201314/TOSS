@@ -15,6 +15,7 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
         if (action == null) return;
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")){
             Intent intent1 = new Intent(context, LaunchActivity.class);
+            intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent1);
             Log.d("TAG", "开机自启动电报!");
         }

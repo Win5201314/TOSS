@@ -17,6 +17,7 @@ import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ChatActivity;
 import org.telegram.ui.Components.ChatActivityEnterView;
 import org.telegram.ui.GroupCreateActivity;
+import org.telegram.ui.LaunchActivity;
 import org.telegram.ui.LoginActivity;
 import org.telegram.ui.NewContactActivity;
 import org.telegram.ui.ProfileActivity;
@@ -136,6 +137,24 @@ public class MyReceiver extends BroadcastReceiver {
         } else if (action.equals("loginout")) {
             //账号退出
             MessagesController.getInstance().performLogout(true);
+        } else if (action.equals("LaunchAndExit")) {
+            int type = intent.getIntExtra("type", 0);
+            switch (type) {
+                case 0: {
+                    //启动App
+                    Log.d("TAG", "启动电报====================");
+                    Intent intent1 = new Intent(context, LaunchActivity.class);
+                    intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent1);
+                    break;
+                }
+                case 1: {
+                    //退出App
+                    Log.d("TAG", "退出电报====================");
+                    System.exit(0);
+                    break;
+                }
+            }
         }
     }
 
