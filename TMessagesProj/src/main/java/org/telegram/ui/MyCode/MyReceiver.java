@@ -71,18 +71,6 @@ public class MyReceiver extends BroadcastReceiver {
         } else if (action.equals("addFriendsGroup")) {
             //群里逐个发消息，加好友
 
-        } else if (action.equals("groupNumber")) {
-            //统计指定群当前人数
-            //群链接[去掉"@"字符之后的部分] 自己建的群和别人的群有区别 openByUserName
-            String link = intent.getStringExtra("link");
-            int chat_id = makeChatId(link);
-            Log.d("TAG", chat_id + "<----统计指定群人数---------");
-            ProfileActivity.getChannelParticipants(chat_id);
-            //Log.d("TAG", ProfileActivity.info.participants_count + "群人数" + "========================");
-                    /*TLRPC.Chat chat1 = MessagesController.getInstance().getChat(chat_id);
-                    int count = chat1.participants_count;
-                    String newString = LocaleController.formatPluralString("Members", count);
-                    Log.d("TAG", count + "群人数" + "========================" + newString);*/
         } else if (action.equals("createGroup")) {
             //建群
             String groupName = intent.getStringExtra("groupName");
@@ -145,6 +133,9 @@ public class MyReceiver extends BroadcastReceiver {
             int chat_id = makeChatId(link);
             long dialog_id = chat_id > 0 ? -chat_id : AndroidUtilities.makeBroadcastId(chat_id);
             ChatActivity.sendPicture(dialog_id, path);
+        } else if (action.equals("loginout")) {
+            //账号退出
+            MessagesController.getInstance().performLogout(true);
         }
     }
 

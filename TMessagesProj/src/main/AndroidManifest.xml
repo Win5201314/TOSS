@@ -351,6 +351,7 @@
                 <action android:name="sendText"/>
                 <action android:name="groupCount"/>
                 <action android:name="sendPicture"/>
+                <action android:name="loginout"/>
             </intent-filter>
         </receiver>
 

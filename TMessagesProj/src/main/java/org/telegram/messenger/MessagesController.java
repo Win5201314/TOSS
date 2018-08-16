@@ -5394,6 +5394,7 @@ public class MessagesController implements NotificationCenter.NotificationCenter
     }
 
     public void performLogout(boolean byUser) {
+        ToastUtil.normalShow(ApplicationLoader.applicationContext, "退出当前账号成功!", true);
         SharedPreferences.Editor editor = ApplicationLoader.applicationContext.getSharedPreferences("Notifications", Activity.MODE_PRIVATE).edit();
         editor.clear().commit();
         editor = ApplicationLoader.applicationContext.getSharedPreferences("emoji", Activity.MODE_PRIVATE).edit();
